@@ -6,7 +6,7 @@ Ready to jump in? Follow these steps:
 
 1.  **Clone the Repo:**
     ```bash
-    git clone [https://github.com/Aaryan-Dadu/Library-Management-System.git](https://github.com/Aaryan-Dadu/Library-Management-System.git)
+    git clone https://github.com/Aaryan-Dadu/Library-Management-System.git
     ```
 
 2.  **Navigate to the Project:**
