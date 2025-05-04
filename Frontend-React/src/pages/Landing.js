@@ -1,12 +1,9 @@
-import React from 'react'
-import Home from "../components/home";
-import About from "../components/about";
-import Work from "../components/work";
-import Test from "../components/testimonials";
-import Footer from "../components/footer";
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-
+import Header from '../components/layout/Header';
+import Footer from '../components/layout/Footer';
+import HeroSection from '../components/landing/HeroSection';
+import FeaturesSection from '../components/landing/FeaturesSection';
 
 const Landing = () => {
   // remember me 
@@ -22,17 +19,18 @@ const Landing = () => {
       // Navigate to the dashboard with the user ID
       navigate('/dashboard', { state: { id: userId } });
     }
-  }, []);
+  }, [navigate]);
 
   return (
-    <div className="App">
-      <Home />
-      <About />
-      <Work />
-      <Test />
+    <div className="landing-page">
+      <Header />
+      <main>
+        <HeroSection />
+        <FeaturesSection />
+      </main>
       <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default Landing
+export default Landing;

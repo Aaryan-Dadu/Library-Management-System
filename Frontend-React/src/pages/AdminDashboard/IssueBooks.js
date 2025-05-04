@@ -6,52 +6,101 @@ import { useState } from "react";
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import FormGroup from "../../components/ui/FormGroup";
 
 function IssuedBooks() {
-
-    const [userId, setUserID] = useState("");
-    const [bookId, setBookid] = useState("");
+    const [userId, setUserId] = useState("");
+    const [bookId, setBookId] = useState("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const issueBook = async (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        var requestBody = { "user": { "id": userId }, "book": { "id": bookId } }
-        await axios.post("http://localhost:8080/borrow", requestBody).then(response => {
-            // navigate("/admindashboard/issuebooks", { state: response.data })
-            setUserID("");
-            setBookid("");
-            toast.success("Successfully book issued");
-        }).catch(() => toast.error("Failed to issue book"));
-    }
+        
+        if (!userId || !bookId) {
+            toast.error("Please enter both User ID and Book ID");
+            return;
+        }
+        
+        try {
+            setLoading(true);
+            const requestBody = { 
+                "user": { "id": userId }, 
+                "book": { "id": bookId } 
+            };
+            
+            await axios.post("http://localhost:8080/borrow", requestBody);
+            toast.success("Book issued successfully");
+            
+            // Reset form
+            setUserId("");
+            setBookId("");
+        } catch (error) {
+            console.error("Error issuing book:", error);
+            toast.error("Failed to issue book");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
-        <div class="IssuedBook-body">
-            <div class="main">
-                <div class="topbar">
-                    <div class="toggle">
+        <div className="dashboard-content">
+            <Card title="Issue Book" className="issue-book-card">
+                <form onSubmit={handleSubmit}>
+                    <div className="row">
+                        <div className="col-md-6">
+                            <FormGroup label="Book ID" htmlFor="bookId">
+                                <input
+                                    type="text"
+                                    id="bookId"
+                                    className="form-control"
+                                    placeholder="Enter Book ID"
+                                    value={bookId}
+                                    onChange={(e) => setBookId(e.target.value)}
+                                    required
+                                />
+                            </FormGroup>
+                        </div>
+                        <div className="col-md-6">
+                            <FormGroup label="User ID" htmlFor="userId">
+                                <input
+                                    type="text"
+                                    id="userId"
+                                    className="form-control"
+                                    placeholder="Enter User ID"
+                                    value={userId}
+                                    onChange={(e) => setUserId(e.target.value)}
+                                    required
+                                />
+                            </FormGroup>
+                        </div>
                     </div>
-                    <div class="user">
-                        <img class="navLogo" src={logo} alt="logo" />
+                    
+                    <div className="d-flex justify-content-end gap-2 mt-4">
+                        <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => {
+                                setUserId("");
+                                setBookId("");
+                            }}
+                        >
+                            Reset
+                        </Button>
+                        <Button 
+                            type="submit" 
+                            variant="primary"
+                            disabled={loading}
+                        >
+                            {loading ? "Issuing..." : "Issue Book"}
+                        </Button>
                     </div>
-                </div>
-
-                <div id="Bookissue">
-                    <h1>Issue Book</h1>
-                    <form >
-                        <label for="bookid">Book ID:</label>
-                        <input type="text" id="bookid" name="bookid" onChange={(e) => {
-                            setBookid(e.target.value)
-                        }} value={bookId} />
-                        <label for="userid">User ID:</label>
-                        <input type="text" id="UserEmail" name="userid" onChange={(e) => {
-                            setUserID(e.target.value)
-                        }} value={userId} />
-                        <button type="submit" onClick={issueBook}>Issue Book</button>
-                    </form>
-                </div>
-            </div>
+                </form>
+            </Card>
         </div>
     );
 }
+
 export default IssuedBooks;

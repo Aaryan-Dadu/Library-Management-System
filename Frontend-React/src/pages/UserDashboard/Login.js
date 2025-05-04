@@ -8,6 +8,10 @@ import { Link, Route, Routes } from "react-router-dom";
 import Home from "../../components/home";
 import { toast } from "react-hot-toast"
 import { PasswordInput } from "../../components/PasswordInput";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import FormGroup from "../../components/ui/FormGroup";
+import PageContainer from "../../components/layout/PageContainer";
 
 function Login() {
   const [name, setName] = useState("");
@@ -56,7 +60,8 @@ function Login() {
 
   // sign up
   const register = async (event) => {
-
+    event.preventDefault();
+    
     // Check if any of the input values are empty
     if (!name || !phoneNumber || !regEmail || !regPassword || !confirmPassword) {
       toast.error("Fill all the fields");
@@ -89,206 +94,201 @@ function Login() {
       setRegEmail("");
       setRegPassword("");
       setConfirmPassword("");
+      setIsRegistering(false); // Switch back to login form after successful registration
     } catch (error) {
       console.error(error);
       toast.error("Failed to Signup");
     }
   };
 
-
   // remember me 
   const handleRememberMeChange = (event) => {
     setRememberMe(event.target.checked);
   };
 
-
   return (
-
-    <div class="login-Body">
-      <div class="topnav">
-        <Link class="active" to="/">
-          Home
-        </Link>
-      </div>
-      <div class="flex-container">
-        <img class="navLogo" src={logo} alt="" />
-        <h1 class="title">Welcome to Hamro Library</h1>
-      </div>
-
-      <div
-        class={`container ${isRegistering && "right-panel-active"}`}
-        id="container"
-      >
-        <div class="form-container sign-up-container">
-          <form action="#" required>
-            <h1>Create Account</h1>
-
-            <input
-              type="text"
-              placeholder="Full name"
-              pattern="^[a-zA-Z]{3,}\s[a-zA-Z]{3,}$"
-              required
-              onInvalid={(e) =>
-                e.target.setCustomValidity(
-                  "Please enter a valid full name (letters and spaces only)"
-                )
-              }
-              onInput={(e) => e.target.setCustomValidity("")}
-              onChange={(e) => setName(e.target.value)}
-              value={name}
-            />
-
-            <input
-              type="tel"
-              placeholder="Phone number"
-              pattern="[0-9]{10}"
-              required
-              onInvalid={(e) =>
-                e.target.setCustomValidity(
-                  "Please enter a valid 10-digit phone number"
-                )
-              }
-              onInput={(e) => e.target.setCustomValidity("")}
-              onChange={(e) => {
-                setPhoneNumber(e.target.value);
-              }}
-              value={phoneNumber}
-            />
-
-            <input
-              type="email"
-              placeholder="Email"
-              pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-              required
-              onInvalid={(e) =>
-                e.target.setCustomValidity("Please enter a valid email address")
-              }
-              onInput={(e) => e.target.setCustomValidity("")}
-              onChange={(e) => {
-                setRegEmail(e.target.value);
-              }}
-              value={regEmail}
-            />
-
-            <PasswordInput
-              placeholder="Password"
-              pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-              required
-              onInvalid={(e) => {
-                e.target.setCustomValidity(
-                  "Password must contain at least one digit, one lowercase letter, one uppercase letter, and be at least 8 characters long"
-                );
-                e.preventDefault();
-              }}
-              onInput={(e) => e.target.setCustomValidity("")}
-              onChange={(e) => {
-                setRegPassword(e.target.value);
-              }}
-              value={regPassword}
-            />
-            <PasswordInput
-              placeholder="Confirm password"
-              pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-              required
-              onInvalid={(e) => {
-                e.target.setCustomValidity("Please re-enter your password");
-                e.preventDefault();
-              }}
-              onInput={(e) => e.target.setCustomValidity("")}
-              onChange={(e) => {
-                setConfirmPassword(e.target.value);
-              }}
-              value={confirmPassword}
-            />
-            <button type="submit" onClick={register}>
-              Sign Up
-            </button>
-          </form>
-        </div>
-
-        <div class="form-container sign-in-container">
-          <form action="#">
-            <h1>Sign in</h1>
-            <input
-              type="email"
-              placeholder="Email"
-              pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-              required
-              value={logEmail}
-              onChange={(e) => {
-                setlogEmail(e.target.value);
-              }}
-            />
-
-            <PasswordInput
-              type="password"
-              placeholder="Password"
-              value={logPassword}
-              onChange={(e) => {
-                setLogPassword(e.target.value);
-              }}
-              required
-            />
-
-            <div class="forgot" style={{ margin: "10px" }}>
-              <Link to="/forgotpassword" style={{ color: "blue" }}>
-                Forgot password?
-              </Link>
-            </div>
-            <div class="check">
-              <div>
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  name="remember"
-                  onChange={handleRememberMeChange} />
+    <PageContainer fullWidth>
+      <div className="auth-page">
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-md-6">
+              <div className="auth-form-container">
+                <div className="auth-form-logo">
+                  <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 7V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V7C3 4 4.5 2 8 2H16C19.5 2 21 4 21 7Z" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M15.5 2V9.5C15.5 10.33 14.5 10.75 13.9 10.15L12.5 8.75C12.22 8.47 11.78 8.47 11.5 8.75L10.1 10.15C9.5 10.75 8.5 10.33 8.5 9.5V2H15.5Z" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M13.5 14H17.5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M13.5 18H17.5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M7 14H9" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M7 18H9" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                
+                <h1 className="auth-form-title">
+                  {isRegistering ? "Create Account" : "Welcome Back"}
+                </h1>
+                
+                <Card>
+                  {!isRegistering ? (
+                    <form onSubmit={login}>
+                      <FormGroup label="Email" htmlFor="login-email">
+                        <input
+                          id="login-email"
+                          type="email"
+                          className="form-control"
+                          placeholder="Enter your email"
+                          pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                          required
+                          value={logEmail}
+                          onChange={(e) => setlogEmail(e.target.value)}
+                        />
+                      </FormGroup>
+                      
+                      <FormGroup label="Password" htmlFor="login-password">
+                        <input
+                          id="login-password"
+                          type="password"
+                          className="form-control"
+                          placeholder="Enter your password"
+                          required
+                          value={logPassword}
+                          onChange={(e) => setLogPassword(e.target.value)}
+                        />
+                      </FormGroup>
+                      
+                      <div className="d-flex justify-content-between align-items-center mb-4">
+                        <div className="form-check">
+                          <input
+                            type="checkbox"
+                            className="form-check-input"
+                            id="remember-me"
+                            checked={rememberMe}
+                            onChange={handleRememberMeChange}
+                          />
+                          <label className="form-check-label" htmlFor="remember-me">
+                            Remember me
+                          </label>
+                        </div>
+                        <Link to="/forgotpassword" className="text-primary">
+                          Forgot Password?
+                        </Link>
+                      </div>
+                      
+                      <Button type="submit" variant="primary" fullWidth>
+                        Sign In
+                      </Button>
+                      
+                      {errorMsg && (
+                        <div className="text-danger mt-3">
+                          {errorMsg}
+                        </div>
+                      )}
+                    </form>
+                  ) : (
+                    <form onSubmit={register}>
+                      <FormGroup label="Full Name" htmlFor="reg-name">
+                        <input
+                          id="reg-name"
+                          type="text"
+                          className="form-control"
+                          placeholder="Enter your full name"
+                          pattern="^[a-zA-Z]{3,}\s[a-zA-Z]{3,}$"
+                          required
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                        />
+                      </FormGroup>
+                      
+                      <FormGroup label="Phone Number" htmlFor="reg-phone">
+                        <input
+                          id="reg-phone"
+                          type="tel"
+                          className="form-control"
+                          placeholder="Enter your phone number"
+                          pattern="[0-9]{10}"
+                          required
+                          value={phoneNumber}
+                          onChange={(e) => setPhoneNumber(e.target.value)}
+                        />
+                      </FormGroup>
+                      
+                      <FormGroup label="Email" htmlFor="reg-email">
+                        <input
+                          id="reg-email"
+                          type="email"
+                          className="form-control"
+                          placeholder="Enter your email"
+                          pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                          required
+                          value={regEmail}
+                          onChange={(e) => setRegEmail(e.target.value)}
+                        />
+                      </FormGroup>
+                      
+                      <FormGroup label="Password" htmlFor="reg-password">
+                        <PasswordInput
+                          id="reg-password"
+                          className="form-control"
+                          placeholder="Create a password"
+                          pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                          required
+                          value={regPassword}
+                          onChange={(e) => setRegPassword(e.target.value)}
+                        />
+                        <small className="text-muted">
+                          Password must contain at least one digit, one lowercase letter,
+                          one uppercase letter, and be at least 8 characters long.
+                        </small>
+                      </FormGroup>
+                      
+                      <FormGroup label="Confirm Password" htmlFor="reg-confirm-password">
+                        <PasswordInput
+                          id="reg-confirm-password"
+                          className="form-control"
+                          placeholder="Confirm your password"
+                          required
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                      </FormGroup>
+                      
+                      <Button type="submit" variant="primary" fullWidth>
+                        Sign Up
+                      </Button>
+                    </form>
+                  )}
+                </Card>
+                
+                <div className="text-center mt-4">
+                  {isRegistering ? (
+                    <p>
+                      Already have an account?{" "}
+                      <Button 
+                        variant="link" 
+                        onClick={() => setIsRegistering(false)}
+                      >
+                        Sign In
+                      </Button>
+                    </p>
+                  ) : (
+                    <p>
+                      Don't have an account?{" "}
+                      <Button 
+                        variant="link" 
+                        onClick={() => setIsRegistering(true)}
+                      >
+                        Sign Up
+                      </Button>
+                    </p>
+                  )}
+                </div>
+                
+                <div className="text-center mt-3">
+                  <Link to="/" className="text-primary">
+                    ← Back to Home
+                  </Link>
+                </div>
               </div>
-              <div>
-                Remember Me
-              </div>
-            </div>
-            <button style={{ margin: "10px" }} type="button" onClick={login}>
-              Sign In
-            </button>
-            {errorMsg && (
-              <h4
-                className="error-message"
-                style={{ color: "red", marginTop: "10px" }}
-              >
-                {errorMsg}
-              </h4>
-            )}
-          </form>
-        </div>
-        <div class="overlay-container">
-          <div class="overlay">
-            <div class="overlay-panel overlay-left">
-              <h1>Welcome Back!</h1>
-              <p>
-                To keep connected with us please login with your personal info
-              </p>
-              <button
-                class="ghost"
-                id="signIn"
-                onClick={() => {
-                  setIsRegistering(false);
-                }}
-              >
-                Sign In
-              </button>
-            </div>
-            <div class="overlay-panel overlay-right">
-              <h1>Don't have account?</h1>
-              <p>Enter your personal details and start journey with us</p>
-              <button
-                class="ghost"
-                id="signUp"
-                onClick={() => {
-                  setIsRegistering(true);
-                }}
-              >
-                Sign Up
-              </button>
             </div>
           </div>
         </div>
@@ -297,7 +297,7 @@ function Login() {
         <Route path="/forgotpassowrd" element={<ForgotPassword />} />
         <Route path="/home" element={<Home />} />
       </Routes>
-    </div>
+    </PageContainer>
   );
 }
 export default Login;

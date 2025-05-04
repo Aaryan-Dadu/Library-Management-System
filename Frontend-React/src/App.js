@@ -1,4 +1,7 @@
 import './App.css';
+import './styles/theme.css';
+import './styles/layout.css';
+import './styles/landing.css';
 import Landing from './pages/Landing';
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';

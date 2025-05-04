@@ -1,102 +1,104 @@
-
 import "../../styles/BorrowedBooks.css";
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from "react-hot-toast";
+import Card from "../../components/ui/Card";
+import Table from "../../components/ui/Table";
+import Button from "../../components/ui/Button";
+import FormGroup from "../../components/ui/FormGroup";
 import logo from '../../styles/images/user.png';
-
-
 
 function MyBorrowedBook() {
     const [bookTitle, setBookTitle] = useState({});
     const [borrow, setBorrow] = useState([]);
+    const [loading, setLoading] = useState(true);
     const userId = parseInt(sessionStorage.getItem('userId'));
     // console.log(userId);
 
     useEffect(() => {
-        axios.get(`http://localhost:8080/borrow/user/${userId}`)
-            .then(response => {
-                // console.log(response.data);
-                setBorrow(response.data);
-                const bookIds = response.data.map(br => br.book.id);
-                const uniqueBookIds = [...new Set(bookIds)];
-                Promise.all(uniqueBookIds.map(getBook))
-                    .then(books => {
-                        const updatedBookTitles = {};
-                        books.forEach(book => updatedBookTitles[book.id] = book.title);
-                        setBookTitle(updatedBookTitles);
-                    })
-                    .catch(error => {
-                        console.log(error);
-                    });
-            })
-            .catch(error => {
-                console.log(error);
-            });
-
+        fetchBorrowedBooks();
     }, [userId]);
+
+    const fetchBorrowedBooks = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get(`http://localhost:8080/borrow/user/${userId}`);
+            setBorrow(response.data);
+            
+            const bookIds = response.data.map(br => br.book.id);
+            const uniqueBookIds = [...new Set(bookIds)];
+            const books = await Promise.all(uniqueBookIds.map(getBook));
+            
+            const updatedBookTitles = {};
+            books.forEach(book => {
+                if (book) updatedBookTitles[book.id] = book.title;
+            });
+            setBookTitle(updatedBookTitles);
+            
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching borrowed books:', error);
+            toast.error('Failed to load borrowed books');
+            setLoading(false);
+        }
+    };
 
     const getBook = async (id) => {
         try {
-            const response = await axios.get('http://localhost:8080/books/' + id);
+            const response = await axios.get(`http://localhost:8080/books/${id}`);
             return { id, title: response.data.bookTitle };
         } catch (error) {
-            console.log(error);
+            console.error(`Error fetching book ${id}:`, error);
+            return null;
         }
     }
 
     // return book
-    const handleReturn = (borrwID, bookID, userID) => {
-        setBookId(bookID);
-        axios.put('http://localhost:8080/borrow/return', { borrowId: borrwID, bookId: bookID, userId: userID })
-            .then(res => {
-                // change return status
-                axios.get('http://localhost:8080/requests')
-                    .then(response => {
-                        const requests = response.data;
-                        let returnId = null;
-                        // console.log("user", userID, "book", bookID);
-                        for (let i = 0; i < requests.length; i++) {
-                            const req = requests[i];
-                            // console.log(i);
-                            // console.log(req);
-                            if (req.user.id === userID && req.book.id === bookID) {
-                                // console.log(req.user.id);
-                                returnId = req.id;
-                                break;
-                            }
-                        }
-                        console.log(returnId);
-                        if (returnId !== null) {
-                            axios.put(`http://localhost:8080/requests_return/${returnId}`, { user: { id: userID }, book: { id: bookID } })
-                                .then(response => {
-                                    console.log("response \n", response.data);
-                                    toast.success("Book return success");
-                                    setTimeout(() => {
-                                        setShowRatingForm(true);
-                                    }, 500);
-                                })
-                                .catch(error => {
-                                    toast.error("Failed to return")
-                                    console.log(error);
-                                });
-                        }
-                    })
-                    .catch(error => {
-                        // handle error
-                    });
-                // toast.success("Book returned");
-            }).catch(err => console.log(err));
-    }
-
+    const handleReturn = async (borrowId, bookId, userId) => {
+        try {
+            setBookId(bookId);
+            await axios.put('http://localhost:8080/borrow/return', { 
+                borrowId: borrowId, 
+                bookId: bookId, 
+                userId: userId 
+            });
+            
+            // change return status
+            const requestsResponse = await axios.get('http://localhost:8080/requests');
+            const requests = requestsResponse.data;
+            let returnId = null;
+            
+            for (let i = 0; i < requests.length; i++) {
+                const req = requests[i];
+                if (req.user.id === userId && req.book.id === bookId) {
+                    returnId = req.id;
+                    break;
+                }
+            }
+            
+            if (returnId !== null) {
+                await axios.put(`http://localhost:8080/requests_return/${returnId}`, { 
+                    user: { id: userId }, 
+                    book: { id: bookId } 
+                });
+                
+                toast.success("Book returned successfully");
+                setTimeout(() => {
+                    setShowRatingForm(true);
+                }, 500);
+            }
+        } catch (error) {
+            console.error('Error returning book:', error);
+            toast.error("Failed to return book");
+        }
+    };
 
     const [showRatingForm, setShowRatingForm] = useState(false);
-    // user rating form
-    const [rating, setRating] = useState();
+    const [rating, setRating] = useState('');
     const [review, setReview] = useState("");
-    const [bookId, setBookId] = useState();
+    const [bookId, setBookId] = useState(null);
 
-    const submitReview = (event) => {
+    const submitReview = async (event) => {
         event.preventDefault();
 
         if (!rating || !review) {
@@ -109,132 +111,150 @@ function MyBorrowedBook() {
             return;
         }
 
-        // Check if the user has already reviewed the book
-        axios
-            .get("http://localhost:8080/ratings", {
+        try {
+            // Check if the user has already reviewed the book
+            const response = await axios.get("http://localhost:8080/ratings", {
                 params: {
                     user: userId,
                     book: bookId,
                 },
-            })
-            .then((response) => {
-                let existingRating = null;
-                for (let i = 0; i < response.data.length; i++) {
-                    const rating = response.data[i];
-                    if (rating.book.id === bookId && rating.user.id === userId) {
-                        existingRating = rating;
-                        break;
-                    }
-                }
-                if (existingRating) {
-                    // Update existing rating
-                    axios
-                        .put(
-                            `http://localhost:8080/ratings/${existingRating.id}`,
-                            {
-                                rating: rating,
-                                review: review,
-                                user: { id: userId },
-                                book: { id: bookId },
-                            }
-                        )
-                        .then((response) => {
-                            toast.success("Book review updated.");
-                            setTimeout(() => {
-                                window.location.reload(false);
-                            }, 500);
-                        })
-                        .catch((error) => {
-                            toast.error("Update error.");
-                            console.log(error);
-                        });
-                } else {
-                    // Create new rating
-                    axios
-                        .post("http://localhost:8080/ratings", {
-                            rating: rating,
-                            review: review,
-                            user: { id: userId },
-                            book: { id: bookId },
-                        })
-                        .then((response) => {
-                            toast.success("Book review success.");
-                            setTimeout(() => {
-                                window.location.reload(false);
-                            }, 500);
-                        })
-                        .catch((error) => {
-                            toast.error("Rating error.");
-                            console.log(error);
-                        });
-                }
-            })
-            .catch((error) => {
-                toast.error("Failed to review.");
-                console.log(error);
             });
+            
+            let existingRating = null;
+            for (let i = 0; i < response.data.length; i++) {
+                const ratingItem = response.data[i];
+                if (ratingItem.book.id === bookId && ratingItem.user.id === userId) {
+                    existingRating = ratingItem;
+                    break;
+                }
+            }
+            
+            if (existingRating) {
+                // Update existing rating
+                await axios.put(`http://localhost:8080/ratings/${existingRating.id}`, {
+                    rating: rating,
+                    review: review,
+                    user: { id: userId },
+                    book: { id: bookId },
+                });
+                
+                toast.success("Book review updated successfully");
+            } else {
+                // Create new rating
+                await axios.post("http://localhost:8080/ratings", {
+                    rating: rating,
+                    review: review,
+                    user: { id: userId },
+                    book: { id: bookId },
+                });
+                
+                toast.success("Book review submitted successfully");
+            }
+            
+            setShowRatingForm(false);
+            fetchBorrowedBooks();
+        } catch (error) {
+            console.error('Error submitting review:', error);
+            toast.error("Failed to submit review");
+        }
     };
 
-    return (
-        <div class="main">
-            <div class="topbar">
+    const closeRatingForm = () => {
+        setShowRatingForm(false);
+    };
 
-                <div class="toggle">
-                </div>
-                <div class="user">
-                    <img class="navLogo" src={logo} alt="logo" />
-                </div>
-            </div>
-            <div id="dashboard-container" style={{ marginTop: "2rem" }}>
-                <table class="dashboard-table" id="book-list">
-                    <thead>
-                        <tr>
-                            <th>Borrow Id</th>
-                            <th>Book Id</th>
-                            <th>Book Title</th>
-                            <th>Borrow Date</th>
-                            <th>Due Date</th>
-                            <th>Return Date</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {borrow.map(br => (
-                            <tr key={br.id}>
-                                <td>{br.borrowId}</td>
-                                <td>{br.book.id}</td>
-                                <td>{bookTitle[br.book.id]}</td>
-                                <td>{br.borrowDate}</td>
-                                <td>{br.dueDate}</td>
-                                <td>{br.returnDate}</td>
-                                <td>
-                                    {br.status === 'ACCEPTED' ? (
-                                        <button onClick={() => handleReturn(br.borrowId, br.book.id, userId)}>Return</button>
-                                    ) : (
-                                        br.status
-                                    )}
-                                </td>
-                            </tr>))}
-                    </tbody>
-                </table>
-            </div>
+    // Define columns for the Table component
+    const columns = [
+        { header: 'Borrow ID', accessor: 'borrowId' },
+        { header: 'Book ID', accessor: 'book.id' },
+        { 
+            header: 'Book Title', 
+            accessor: 'book.id',
+            cell: (row) => bookTitle[row.book.id] || 'Loading...'
+        },
+        { header: 'Borrow Date', accessor: 'borrowDate' },
+        { header: 'Due Date', accessor: 'dueDate' },
+        { header: 'Return Date', accessor: 'returnDate' },
+        { 
+            header: 'Status/Actions',
+            cell: (row) => (
+                row.status === 'ACCEPTED' ? (
+                    <Button 
+                        variant="primary" 
+                        size="sm"
+                        onClick={() => handleReturn(row.borrowId, row.book.id, userId)}
+                    >
+                        Return
+                    </Button>
+                ) : (
+                    <span className={`status-badge ${row.status.toLowerCase()}`}>
+                        {row.status}
+                    </span>
+                )
+            )
+        }
+    ];
+
+    return (
+        <div className="dashboard-content">
+            <Card 
+                title="My Borrowed Books"
+                className="borrowed-books-card"
+            >
+                {loading ? (
+                    <div className="text-center py-5">Loading borrowed books...</div>
+                ) : borrow.length === 0 ? (
+                    <div className="text-center py-5">You haven't borrowed any books yet.</div>
+                ) : (
+                    <Table 
+                        columns={columns} 
+                        data={borrow}
+                        striped
+                        hover
+                    />
+                )}
+            </Card>
+            
             {showRatingForm && (
-                <div className="popup">
-                    <div className="popup-content">
-                        <h2>Book Review</h2>
-                        <form style={{ borderColor: '#f5f5f5' }}>
-                            <label>
-                                Rating (0-5):
-                                <input type="number" min="0" max="5" onChange={(e) => setRating(e.target.value)} />
-                            </label>
-                            <label>
-                                Review:
-                                <textarea onChange={(e) => setReview(e.target.value)}></textarea>
-                            </label>
-                            <button type="submit" onClick={submitReview} >Submit Review</button>
-                            {/* <button type="submit" onClick={setShowRatingForm(false)} >Close</button> */}
+                <div className="modal-overlay">
+                    <Card className="rating-modal">
+                        <div className="modal-header">
+                            <h3>Rate & Review Book</h3>
+                            <button className="close-btn" onClick={closeRatingForm}>×</button>
+                        </div>
+                        <form onSubmit={submitReview}>
+                            <FormGroup label="Rating (0-5)" htmlFor="rating">
+                                <input
+                                    type="number"
+                                    id="rating"
+                                    className="form-control"
+                                    min="0"
+                                    max="5"
+                                    value={rating}
+                                    onChange={(e) => setRating(e.target.value)}
+                                    required
+                                />
+                            </FormGroup>
+                            <FormGroup label="Review" htmlFor="review">
+                                <textarea
+                                    id="review"
+                                    className="form-control"
+                                    rows="4"
+                                    value={review}
+                                    onChange={(e) => setReview(e.target.value)}
+                                    required
+                                ></textarea>
+                            </FormGroup>
+                            <div className="d-flex justify-content-end gap-2 mt-4">
+                                <Button type="button" variant="outline" onClick={closeRatingForm}>
+                                    Cancel
+                                </Button>
+                                <Button type="submit" variant="primary">
+                                    Submit Review
+                                </Button>
+                            </div>
                         </form>
-                    </div>
+                    </Card>
                 </div>
             )}
         </div>

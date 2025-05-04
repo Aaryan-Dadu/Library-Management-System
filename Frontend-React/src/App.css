@@ -1,8 +1,209 @@
+/* Import our main theme and layout styles */
+@import "./styles/theme.css";
+@import "./styles/layout.css";
+@import "./styles/landing.css";
+
+/* Reset styles */
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  font-family: sans-serif !important;
+}
+
+body {
+  font-family: var(--font-primary);
+  line-height: 1.6;
+  color: var(--text);
+  background-color: var(--background);
+}
+
+/* OVERRIDE ANY EXISTING STYLES FROM THE ORIGINAL APP THAT MIGHT CONFLICT */
+
+/* If old styles use classes that might conflict, override them here */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--spacing-lg);
+}
+
+.table th,
+.table td {
+  padding: var(--spacing-md);
+  vertical-align: top;
+  border-top: 1px solid var(--border);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+/* Add utility classes that might be missing */
+.text-danger {
+  color: var(--danger);
+}
+
+.text-success {
+  color: var(--success);
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.mt-3 {
+  margin-top: var(--spacing-md);
+}
+
+.mt-4 {
+  margin-top: var(--spacing-lg);
+}
+
+.mb-3 {
+  margin-bottom: var(--spacing-md);
+}
+
+.mb-4 {
+  margin-bottom: var(--spacing-lg);
+}
+
+.me-2 {
+  margin-right: var(--spacing-sm);
+}
+
+.ms-1 {
+  margin-left: var(--spacing-xs);
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+}
+
+.form-check-input {
+  margin-right: var(--spacing-xs);
+}
+
+.form-check-label {
+  font-size: 0.9rem;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.justify-content-between {
+  justify-content: space-between;
+}
+
+.justify-content-center {
+  justify-content: center;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+/* Row and column classes for layout */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -15px;
+  margin-left: -15px;
+}
+
+.col-md-6 {
+  position: relative;
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+@media (min-width: 768px) {
+  .col-md-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+.text-center {
+  text-align: center;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+/* Fix for any Ionicons that might be used */
+ion-icon {
+  font-size: 24px;
+}
+
+/* Form control styles */
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text);
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-control:focus {
+  border-color: var(--primary-light);
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(58, 110, 165, 0.25);
+}
+
+.text-muted {
+  color: var(--text-light);
+  font-size: 0.85rem;
+}
+
+/* Make sure container works correctly */
+.container {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (min-width: 576px) {
+  .container {
+    max-width: 540px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 720px;
+  }
+}
+
+@media (min-width: 992px) {
+  .container {
+    max-width: 960px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1140px;
+  }
 }
 
 img {

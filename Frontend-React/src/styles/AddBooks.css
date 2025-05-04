@@ -74,3 +74,41 @@ textarea {
     margin: 0.5rem;
     width: auto;
 }
+
+/* Add Books Page Styles */
+
+.add-book-card {
+  max-width: 100%;
+}
+
+.add-book-card .form-control {
+  padding: 1.2rem 1.4rem;
+  min-height: 60px;
+  font-size: 1.05rem;
+}
+
+.add-book-card textarea.form-control {
+  min-height: 150px;
+  padding: 1.2rem 1.4rem;
+}
+
+.add-book-card .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.add-book-card .form-label {
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .add-book-card .form-control {
+    padding: 1rem 1.2rem;
+    min-height: 54px;
+  }
+  
+  .add-book-card textarea.form-control {
+    min-height: 120px;
+  }
+}

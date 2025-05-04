@@ -6,7 +6,10 @@ import { useNavigate } from "react-router-dom";
 import { Link, Route, Routes } from 'react-router-dom';
 import Home from "../../components/home";
 import { toast } from "react-hot-toast"
-
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import FormGroup from "../../components/ui/FormGroup";
+import PageContainer from "../../components/layout/PageContainer";
 
 function AdminLogin() {
     const [email, setEmail] = useState('');
@@ -31,33 +34,78 @@ function AdminLogin() {
         }
     }
     return (
-        <div class="AdminLogin-body">
-            <div class="topnav">
-                <Link class="active" to="/">Home</Link>
-            </div>
-            <div class="flex-container">
-                <img src={logo} alt="" />
-                <h2>Welcome to Hamro Library</h2>
-            </div>
-            <div class="row">
-                <h1>Admin Login</h1>
-                <div class="form-group">
-                    <input type="Email" placeholder="Email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" required onChange={(e) => { setEmail(e.target.value) }} />
-                    <input
-                        type="password" id="pwd" name="pwd" placeholder="Password"
-                        onChange={(e) => { setPassword(e.target.value) }} />
-                    <button type="button" onClick={login}>Login</button>
-                    {errorMsg && (
-                        <h4 className="error-message" style={{ color: "red", marginTop: "10px" }}>
-                            {errorMsg}
-                        </h4>
-                    )}
+        <PageContainer fullWidth>
+            <div className="auth-page">
+                <div className="container">
+                    <div className="row justify-content-center">
+                        <div className="col-md-6">
+                            <div className="auth-form-container">
+                                <div className="auth-form-logo">
+                                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M21 7V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V7C3 4 4.5 2 8 2H16C19.5 2 21 4 21 7Z" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M15.5 2V9.5C15.5 10.33 14.5 10.75 13.9 10.15L12.5 8.75C12.22 8.47 11.78 8.47 11.5 8.75L10.1 10.15C9.5 10.75 8.5 10.33 8.5 9.5V2H15.5Z" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M13.5 14H17.5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M13.5 18H17.5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M7 14H9" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M7 18H9" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </div>
+                                
+                                <h1 className="auth-form-title">Admin Login</h1>
+                                
+                                <Card>
+                                    <form onSubmit={login}>
+                                        <FormGroup label="Email" htmlFor="admin-email">
+                                            <input
+                                                id="admin-email"
+                                                type="email"
+                                                className="form-control"
+                                                placeholder="Enter your email"
+                                                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                                                required
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                            />
+                                        </FormGroup>
+                                        
+                                        <FormGroup label="Password" htmlFor="admin-password">
+                                            <input
+                                                id="admin-password"
+                                                type="password"
+                                                className="form-control"
+                                                placeholder="Enter your password"
+                                                required
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                            />
+                                        </FormGroup>
+                                        
+                                        <Button type="submit" variant="primary" fullWidth>
+                                            Login
+                                        </Button>
+                                        
+                                        {errorMsg && (
+                                            <div className="text-danger mt-3">
+                                                {errorMsg}
+                                            </div>
+                                        )}
+                                    </form>
+                                </Card>
+                                
+                                <div className="text-center mt-3">
+                                    <Link to="/" className="text-primary">
+                                        ← Back to Home
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <Routes>
                 <Route path='/home' element={<Home />} />
             </Routes>
-        </div>
+        </PageContainer>
     );
 }
 export default AdminLogin;
